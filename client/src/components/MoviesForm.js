@@ -76,10 +76,10 @@ const MoviesForm = (props) => {
                         <Typography sx={{marginTop: "20px"}}>All Fields Must Be Filled Out To Submit</Typography>
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField id="title" error={errors.title} value={title} label="Movie Title" variant="standard" sx={{ marginTop: "10px", width: "80%" }} onChange={handleTitleChange}></TextField>
+                        <TextField id="title" /* error={errors.title} */ value={title} label="Movie Title" variant="standard" sx={{width: "80%" }} onChange={handleTitleChange}></TextField>
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField id="director" error={errors.director} value={director} label="Movie Director" variant="standard" sx={{ marginTop: "10px", width: "80%" }} onChange={handleDirectorChange}></TextField>
+                        <TextField id="director" /* error={errors.director} */ value={director} label="Movie Director" variant="standard" sx={{width: "80%" }} onChange={handleDirectorChange}></TextField>
                     </Grid>
                     <Grid item xs={6}>
                         <TextField id="rating" select label="rating" value={rating} sx={{ marginTop: "10px", width: "50%" }} onChange={handleRatingChange}>
@@ -91,7 +91,7 @@ const MoviesForm = (props) => {
                         </TextField>
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField id="review" error={errors.review} value={review} fullWidth multiline label="Your thoughts" rows={4} sx={{ width: "80%" }} onChange={handleReviewChange}></TextField>
+                        <TextField id="review" /* error={errors.review} */ value={review} fullWidth multiline label="Your thoughts" rows={4} sx={{ width: "80%" }} onChange={handleReviewChange}></TextField>
                     </Grid>
                     <Grid item xs={12}>
                         <Button type="submit" variant="contained" disabled={errors.title || errors.director || errors.review}>Submit</Button>
