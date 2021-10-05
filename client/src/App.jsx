@@ -13,30 +13,38 @@ const App = () => {
     const [open, setOpen] = useState(false);
     const [count, setCount] = useState(0);
 
+    // const addMovie = (movie) => {
+    //     setMovies((prevMovies) => {
+    //         return [...prevMovies, movie];
+    //     });
+    // }
+    
     const openForm = () => {
         setOpen(!open);
     }
 
     const incrementCount = () => {
         setCount((prevCount) => {
-            return prevCount + 1;
+            prevCount++;
         })
     }
 
     const decrementCount = () => {
         setCount((prevCount) => {
-            return prevCount--;
+            prevCount--;
         })
     }
 
     useEffect(() => {
+        console.log("GETTING MOVIES");
         axios.get('http://localhost:3001/movies').then(res => {
             setMovies(res.data.moviesList);
             setCount(res.data.moviesList.length);
         }).catch(err => {
             console.log(err);
         })
-    }, [movies])
+    }, [count])
+    
 
     return (
         <CssBaseline>
@@ -47,7 +55,7 @@ const App = () => {
                     {open ? "Cancel" : "Add New Movie"}
                 </Button>
             </Container>
-            {open ? <MoviesForm toggleForm={openForm} incrementCount={incrementCount}/> : <></>}
+            {open ? <MoviesForm /* addMovie={addMovie} */ toggleForm={openForm} incrementCount={incrementCount}/> : <></>}
         </CssBaseline>
     )
 }

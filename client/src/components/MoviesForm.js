@@ -68,6 +68,9 @@ const MoviesForm = (props) => {
 
     const ratings = ["1", "2", "3", "4", "5"];
 
+    const editStatus = (Object.keys(props.movieToEdit).length > 0);
+    console.log(editStatus);
+
     return (
         <Container align="center" sx={{ border: "3px solid black", borderRadius: "10px", backgroundColor: "#757575", mx: "auto", maxWidth: "sm", marginBottom: "50px" }}>
             <Box onSubmit={handleSubmit} component="form" display="flex" justifyContent="left" alignItems="left" sx={{ width: "90%", height: 400, border: "3px solid black", borderRadius: "10px", backgroundColor: "white" }}>

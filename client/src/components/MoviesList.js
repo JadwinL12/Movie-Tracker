@@ -1,4 +1,4 @@
-import React from 'react';
+import { React } from 'react';
 import { Accordion, AccordionSummary, AccordionDetails, Typography, Button } from "@mui/material"
 import { styled } from '@mui/system';
 import { ExpandMore } from '@mui/icons-material/';
