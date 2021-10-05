@@ -36,7 +36,6 @@ const App = () => {
     }
 
     useEffect(() => {
-        console.log("GETTING MOVIES");
         axios.get('http://localhost:3001/movies').then(res => {
             setMovies(res.data.moviesList);
             setCount(res.data.moviesList.length);
