@@ -53,7 +53,6 @@ const MoviesForm = (props) => {
         }
 
         axios.post('http://localhost:3001/movies', movieData).then((res) => {
-            console.log(res);
             setTitle("");
             setDirector("");
             setRating("");
@@ -61,9 +60,9 @@ const MoviesForm = (props) => {
     
             props.toggleForm();
             props.incrementCount();
+            props.getFromServer();
         });
 
-        // props.addMovie(movieData);
     }
 
     const ratings = ["1", "2", "3", "4", "5"];

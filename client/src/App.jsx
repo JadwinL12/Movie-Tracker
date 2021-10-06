@@ -18,6 +18,16 @@ const App = () => {
     //         return [...prevMovies, movie];
     //     });
     // }
+
+    const getFromServer = () => {
+        axios.get('http://localhost:3001/movies').then(res => {
+            console.log(res.data.moviesList);
+            setMovies(res.data.moviesList);
+            setCount(res.data.moviesList.length);
+        }).catch(err => {
+            console.log(err);
+        })
+    }
     
     const openForm = () => {
         setOpen(!open);
@@ -36,25 +46,20 @@ const App = () => {
     }
 
     useEffect(() => {
-        axios.get('http://localhost:3001/movies').then(res => {
-            setMovies(res.data.moviesList);
-            setCount(res.data.moviesList.length);
-        }).catch(err => {
-            console.log(err);
-        })
-    }, [count])
+        getFromServer();
+    }, [])
     
 
     return (
         <CssBaseline>
             <TopBar />
-            <Movies moviesList={movies} movieCount={count} decrementCount={decrementCount}/>
+            <Movies getFromServer={getFromServer} moviesList={movies} movieCount={count} decrementCount={decrementCount}/>
             <Container align="center" sx={{ width: 1200, marginBottom: "50px", mx: "auto" }}>
                 <Button variant="contained" onClick={openForm}>
                     {open ? "Cancel" : "Add New Movie"}
                 </Button>
             </Container>
-            {open ? <MoviesForm /* addMovie={addMovie} */ toggleForm={openForm} incrementCount={incrementCount}/> : <></>}
+            {open ? <MoviesForm /* addMovie={addMovie} */ getFromServer={getFromServer} toggleForm={openForm} incrementCount={incrementCount}/> : <></>}
         </CssBaseline>
     )
 }

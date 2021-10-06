@@ -16,6 +16,7 @@ const MoviesList = props => {
     const deleteMovie = (movieId) => {
         axios.delete('http://localhost:3001/movies', { data: { id: movieId}}).then((res) => {
             props.decrementCount();
+            props.getFromServer();
         })
     }
 
