@@ -21,7 +21,7 @@ const Movies = (props) => {
         <Container align="center" sx={{ width: 1200, marginTop: "100px", marginBottom: "50px", mx: "auto", maxWidth: "md" }}>
             <Box sx={{ border: "3px solid black", borderRadius: "10px", backgroundColor: "#757575" }}>
                 <Counter movieCount={props.movieCount} />
-                <MoviesList getFromServer={props.getFromServer} movies={props.moviesList} decrementCount={props.decrementCount}/>
+                <MoviesList toggleEdit={props.toggleEdit} editStatus={props.editStatus} getFromServer={props.getFromServer} movies={props.moviesList} decrementCount={props.decrementCount}/>
             </Box>
         </Container>
     )

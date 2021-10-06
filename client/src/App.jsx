@@ -12,24 +12,29 @@ const App = () => {
     const [movies, setMovies] = useState([]);
     const [open, setOpen] = useState(false);
     const [count, setCount] = useState(0);
-
-    // const addMovie = (movie) => {
-    //     setMovies((prevMovies) => {
-    //         return [...prevMovies, movie];
-    //     });
-    // }
+    const [edit, setEdit] = useState(false);
+    const [movieEdit, setMovieEdit] = useState({});
 
     const getFromServer = () => {
         axios.get('http://localhost:3001/movies').then(res => {
-            console.log(res.data.moviesList);
             setMovies(res.data.moviesList);
             setCount(res.data.moviesList.length);
         }).catch(err => {
             console.log(err);
         })
     }
+
+    // Implement movieId parameter to display in MovieForm Component
+    const toggleEdit = (movie) => {
+        console.log("Toggling edit");
+        setEdit((prevEdit) => {
+            return !prevEdit;
+        })
+        setMovieEdit(movie);
+        toggleForm();
+    }
     
-    const openForm = () => {
+    const toggleForm = () => {
         setOpen(!open);
     }
 
@@ -53,13 +58,13 @@ const App = () => {
     return (
         <CssBaseline>
             <TopBar />
-            <Movies getFromServer={getFromServer} moviesList={movies} movieCount={count} decrementCount={decrementCount}/>
+            <Movies toggleEdit={toggleEdit} editStatus={edit} getFromServer={getFromServer} moviesList={movies} movieCount={count} decrementCount={decrementCount}/>
             <Container align="center" sx={{ width: 1200, marginBottom: "50px", mx: "auto" }}>
-                <Button variant="contained" onClick={openForm}>
+            {!edit ? <Button variant="contained" onClick={toggleForm}>
                     {open ? "Cancel" : "Add New Movie"}
-                </Button>
+                </Button> : <></>}
             </Container>
-            {open ? <MoviesForm /* addMovie={addMovie} */ getFromServer={getFromServer} toggleForm={openForm} incrementCount={incrementCount}/> : <></>}
+            {open ? <MoviesForm /* addMovie={addMovie} */ movieToEdit={movieEdit} toggleEdit={toggleEdit} editStatus={edit} getFromServer={getFromServer} toggleForm={toggleForm} incrementCount={incrementCount}/> : <></>}
         </CssBaseline>
     )
 }

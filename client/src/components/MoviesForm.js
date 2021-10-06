@@ -1,4 +1,4 @@
-import { React, useState } from 'react';
+import { React, useState, useEffect } from 'react';
 import { Container, Box, TextField, Grid, MenuItem, Button, Typography } from '@mui/material';
 
 import axios from 'axios';
@@ -10,6 +10,20 @@ const MoviesForm = (props) => {
     const [rating, setRating] = useState("1");
     const [review, setReview] = useState("");
     const [errors, setErrors] = useState({title: true, director: true, review: true});
+
+    useEffect(() => {
+        if (props.editStatus) {
+            setErrors({
+                title: false,
+                director: false,
+                review: false
+            })
+            setTitle(props.movieToEdit.title);
+            setDirector(props.movieToEdit.director);
+            setRating(props.movieToEdit.rating);
+            setReview(props.movieToEdit.review);
+        }
+    }, [])
 
     const handleTitleChange = (event) => {
         if (event.target.value.trim().length === 0) {
@@ -65,11 +79,24 @@ const MoviesForm = (props) => {
 
     }
 
+    const handleEdit = (event) => {
+        event.preventDefault();
+
+        const movieData = {
+            title: title,
+            director: director,
+            rating: rating,
+            review: review
+        }
+
+        console.log(movieData);
+    }
+
     const ratings = ["1", "2", "3", "4", "5"];
 
     return (
         <Container align="center" sx={{ border: "3px solid black", borderRadius: "10px", backgroundColor: "#757575", mx: "auto", maxWidth: "sm", marginBottom: "50px" }}>
-            <Box onSubmit={handleSubmit} component="form" display="flex" justifyContent="left" alignItems="left" sx={{ width: "90%", height: 400, border: "3px solid black", borderRadius: "10px", backgroundColor: "white" }}>
+            <Box onSubmit={!props.editStatus ? handleSubmit : handleEdit} component="form" display="flex" justifyContent="left" alignItems="left" sx={{ width: "90%", height: 400, border: "3px solid black", borderRadius: "10px", backgroundColor: "white" }}>
                 <Grid container spacing={4} sx={{ height: "50%", width: "100%" }}>
                     <Grid item xs={12}>
                         <Typography sx={{marginTop: "20px"}}>All Fields Must Be Filled Out To Submit</Typography>

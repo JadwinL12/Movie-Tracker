@@ -35,7 +35,7 @@ const MoviesList = props => {
                             <AccordionDetails>
                                 <Typography>You said: {<b>"{movie.review}"</b>}</Typography>
                                 <Typography>Your rating: {<b>{movie.rating}/5</b>}</Typography>
-                                <Button variant="standard" sx={{marginRight: "10px"}}>Edit</Button>
+                                <Button variant="standard" sx={{marginRight: "10px"}} onClick={() => props.toggleEdit(movie)}>{!props.editStatus ? "Edit" : "Cancel Edit"}</Button>
                                 <Button variant="contained" color="error" sx={{marginTop: "10px", marginBottom: "5px"}} onClick={() => {
                                     deleteMovie(movie._id);
                                 }}>Delete</Button>
