@@ -14,7 +14,7 @@ const ContainerDiv = styled('div')({
 const MoviesList = props => {
 
     const deleteMovie = (movieId) => {
-        axios.delete('http://localhost:3001/movies', { data: { id: movieId}}).then((res) => {
+        axios.delete(`http://localhost:3001/movies`, { data: { id: movieId}}).then((res) => {
             props.decrementCount();
             props.getFromServer();
         })
@@ -30,7 +30,7 @@ const MoviesList = props => {
                         <Accordion key={movie._id}>
                             <AccordionSummary expandIcon={<ExpandMore />} aria-controls="panel1bh-content">
                                 <Typography variant="h6" align="left" sx={{ flexShrink: 0, width: "33%" }}>{movie.title}</Typography>
-                                <Typography align="left" variant="subtitle1" sx={{ mx: "auto", width: 200 }}>Directed by {movie.director}</Typography>
+                                <Typography align="left" variant="subtitle1" sx={{ mx: "auto", width: 300 }}>Directed by {movie.director}</Typography>
                             </AccordionSummary>
                             <AccordionDetails>
                                 <Typography>You said: {<b>"{movie.review}"</b>}</Typography>

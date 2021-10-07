@@ -25,4 +25,12 @@ router.delete('/', (req, res) => {
     });
 })
 
+router.put('/:mid', (req, res) => {
+    let movieId = req.params.mid;
+    let  movieData = req.body;
+    Movie.findByIdAndUpdate(movieId, movieData).then(() => {
+        res.status(200).end();
+    })
+})
+
 module.exports = router;

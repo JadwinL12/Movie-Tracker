@@ -89,7 +89,16 @@ const MoviesForm = (props) => {
             review: review
         }
 
-        console.log(movieData);
+        axios.put(`http://localhost:3001/movies/${props.movieToEdit._id}`, movieData).then((res) => {
+            setTitle("");
+            setDirector("");
+            setRating("");
+            setReview("1");
+    
+            props.toggleForm();
+            props.getFromServer();
+            props.toggleEdit();
+        });
     }
 
     const ratings = ["1", "2", "3", "4", "5"];
