@@ -14,7 +14,7 @@ const ContainerDiv = styled('div')({
 const MoviesList = props => {
 
     const deleteMovie = (movieId) => {
-        axios.delete(`http://localhost:3001/movies`, { data: { id: movieId}}).then((res) => {
+        axios.delete(`http://localhost:3001/movies/${movieId}`).then((res) => {
             props.decrementCount();
             props.getFromServer();
         })

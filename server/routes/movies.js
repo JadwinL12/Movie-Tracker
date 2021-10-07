@@ -18,10 +18,10 @@ router.post('/', (req, res) => {
     res.status(201).end();
 })
 
-router.delete('/', (req, res) => {
-    let movieData = req.body.id;
+router.delete('/:mid', (req, res) => {
+    let movieData = req.params.mid;
     Movie.findByIdAndDelete(movieData).then(() => {
-        res.status(200).end();
+        res.status(204).end();
     });
 })
 
@@ -29,7 +29,7 @@ router.put('/:mid', (req, res) => {
     let movieId = req.params.mid;
     let  movieData = req.body;
     Movie.findByIdAndUpdate(movieId, movieData).then(() => {
-        res.status(200).end();
+        res.status(204).end();
     })
 })
 
