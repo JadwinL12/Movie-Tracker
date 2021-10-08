@@ -59,7 +59,7 @@ const App = () => {
         <CssBaseline>
             <TopBar />
             <Movies toggleEdit={toggleEdit} editStatus={edit} getFromServer={getFromServer} moviesList={movies} movieCount={count} decrementCount={decrementCount}/>
-            <Container align="center" sx={{ width: 1200, marginBottom: "50px", mx: "auto" }}>
+            <Container align="center" sx={{ width: 1200, marginBottom: "50px", mx: "auto", maxWidth: "md" }}>
             {!edit ? <Button variant="contained" onClick={toggleForm}>
                     {open ? "Cancel" : "Add New Movie"}
                 </Button> : <></>}
