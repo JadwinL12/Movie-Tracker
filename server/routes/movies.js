@@ -9,7 +9,7 @@ function checkForDuplicates(movieData, movieId = "0") {
     return Movie.find({ title: movieData.title, director: movieData.director}).then(movie => {
         if (movie.length >= 1 && movieId === "0") {
             return true;
-        } else if (movie.length >= 1 && movie[0]._id !== movieId) {
+        } else if (movie.length >= 1 && movie[0].id !== movieId) {
             return true;
         }
         return false;
@@ -27,7 +27,7 @@ router.post('/', (req, res) => {
     const newPost = new Movie(newMovie);
     checkForDuplicates(newMovie).then((data) => {
         if (data) {
-            res.status(400).json({ Error: "This movie already exists"});
+            res.status(400).json({ Error: "This movie is already tracked."});
         } else {
             newPost.save();
             res.status(201).end();
@@ -42,17 +42,19 @@ router.delete('/:mid', (req, res) => {
     });
 })
 
-// Finish implementing error check
 router.put('/:mid', (req, res) => {
     let movieId = req.params.mid;
     let  movieData = req.body;
     checkForDuplicates(movieData, movieId).then((data) => {
-        console.log(data);
-        res.end();
+        if (data) {
+            res.status(400).json({ Error: "This movie is already tracked."})
+        }
+        else {
+            Movie.findByIdAndUpdate(movieId, movieData).then(() => {
+                res.status(204).end();
+            })
+        }
     })
-    // Movie.findByIdAndUpdate(movieId, movieData).then(() => {
-    //     res.status(204).end();
-    // })
 })
 
 module.exports = router;

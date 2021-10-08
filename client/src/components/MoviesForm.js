@@ -75,6 +75,8 @@ const MoviesForm = (props) => {
             props.toggleForm();
             props.incrementCount();
             props.getFromServer();
+        }).catch(err => {
+            console.log(err.response);
         });
 
     }
