@@ -21,13 +21,26 @@ const App = () => {
 
     const { user, isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
 
-    const getFromServer = () => {
-        axios.get('http://localhost:3001/movies').then(res => {
-            setMovies(res.data.moviesList);
-            setCount(res.data.moviesList.length);
-        }).catch(err => {
-            console.log(err);
-        })
+    // const getFromServer = () => {
+    //     axios.get('http://localhost:3001/movies').then(res => {
+    //         setMovies(res.data.moviesList);
+    //         setCount(res.data.moviesList.length);
+    //     }).catch(err => {
+    //         console.log(err);
+    //     })
+    //     fetch('http://localhost:3001/movies').then(response => response.json()).then(data => console.log(data.moviesList[0]));
+    // }
+
+    const getFromServer = async () => {
+        try {
+            const accessToken = await getAccessTokenSilently();
+            console.log(accessToken);
+            const moviesList = await axios.get('http://localhost:3001/movies', { headers: { 'Authorization' : `Bearer ${accessToken}`}});
+            setMovies(moviesList.data.moviesList);
+            setCount(moviesList.data.moviesList.length);
+        } catch (e) {
+            console.log(e.message);
+        }
     }
 
     const toggleEdit = (movie) => {
@@ -60,7 +73,7 @@ const App = () => {
             getFromServer();
         }
     }, [isAuthenticated])
-    
+
 
     if (isAuthenticated) {
         return (

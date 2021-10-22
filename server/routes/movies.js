@@ -1,6 +1,25 @@
 const express = require('express');
 const router = express.Router();
 
+const jwt = require('express-jwt');
+const jwksRsa = require('jwks-rsa');
+
+const issuer = process.env.AUTH0_ISSUER;
+const audience = process.env.AUTH0_AUDIENCE;
+const uri = process.env.AUTH0_URI;
+
+const checkJwt = jwt({
+    secret: jwksRsa.expressJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: `https://dev-fkp-4g1q.us.auth0.com/.well-known/jwks.json`
+    }),
+    audience: audience,
+    issuer: issuer,
+    algorithms: ['RS256']
+})
+
 const Movie = require('../models/Movie.js');
 
 router.use(express.json());
@@ -16,13 +35,14 @@ function checkForDuplicates(movieData, movieId = "0") {
     })
 }
 
-router.get('/', (req, res) => {
+router.get('/', checkJwt, (req, res) => {
+    console.log(req.user);
     Movie.find({}).then(movies => {
         res.status(200).json({ moviesList: movies});
     })
 })
 
-router.post('/', (req, res) => {
+router.post('/', checkJwt, (req, res) => {
     let newMovie = req.body;
     const newPost = new Movie(newMovie);
     checkForDuplicates(newMovie).then((data) => {
