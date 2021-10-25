@@ -35,8 +35,7 @@ const App = () => {
         try {
             const accessToken = await getAccessTokenSilently();
             console.log(accessToken);
-            const moviesList = await axios.get('http://localhost:3001/movies', { headers: { 'Authorization' : `Bearer ${accessToken}`}});
-            console.log(moviesList.data.movieList);
+            const moviesList = await axios.get('http://localhost:3001/movies', { headers: { 'Authorization': `Bearer ${accessToken}` } });
             setMovies(moviesList.data.movieList);
             setCount(moviesList.data.movieList.length);
         } catch (e) {
@@ -52,7 +51,7 @@ const App = () => {
         setMovieEdit(movie);
         toggleForm();
     }
-    
+
     const toggleForm = () => {
         setOpen(!open);
     }
@@ -79,25 +78,25 @@ const App = () => {
         return (
             <CssBaseline>
                 <TopBar />
-                <Movies toggleEdit={toggleEdit} editStatus={edit} getFromServer={getFromServer} moviesList={movies} movieCount={count} decrementCount={decrementCount}/>
+                <Movies toggleEdit={toggleEdit} editStatus={edit} getFromServer={getFromServer} moviesList={movies} movieCount={count} decrementCount={decrementCount} />
                 <Container align="center" sx={{ width: 1200, marginBottom: "50px", mx: "auto", maxWidth: "md" }}>
-                {!edit ? <Button variant="contained" onClick={toggleForm}>
+                    {!edit ? <Button variant="contained" onClick={toggleForm}>
                         {open ? "Cancel" : "Add New Movie"}
                     </Button> : <></>}
                 </Container>
-                {open ? <MoviesForm /* addMovie={addMovie} */ movieToEdit={movieEdit} toggleEdit={toggleEdit} editStatus={edit} getFromServer={getFromServer} toggleForm={toggleForm} incrementCount={incrementCount}/> : <></>}
+                {open ? <MoviesForm /* addMovie={addMovie} */ movieToEdit={movieEdit} toggleEdit={toggleEdit} editStatus={edit} getFromServer={getFromServer} toggleForm={toggleForm} incrementCount={incrementCount} /> : <></>}
             </CssBaseline>
         )
     } else if (isLoading) {
         return (<Container align="center" sx={{ width: 1200, height: 400, marginTop: "100px", marginBottom: "50px", mx: "auto", maxWidth: "md" }}>
-        <Box component="div" alignItems="center" sx={{height: 400, border: "3px solid black", borderRadius: "10px", backgroundColor: "white", display: "flex", justifyContent: "center" }}>
-            <div>
-                <CircularProgress />
-            </div>
-        </Box>
+            <Box component="div" alignItems="center" sx={{ height: 400, border: "3px solid black", borderRadius: "10px", backgroundColor: "white", display: "flex", justifyContent: "center" }}>
+                <div>
+                    <CircularProgress />
+                </div>
+            </Box>
         </Container>
         )
-    } 
+    }
     else {
         return (
             <CssBaseline>

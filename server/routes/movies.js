@@ -27,7 +27,7 @@ const List = require('../models/UserList.js');
 router.use(express.json());
 
 function findUser(userSub) {
-    return List.find({owner: userSub}).then((user) => {
+    return List.find({ owner: userSub }).then((user) => {
         if (user.length === 0) {
             return [];
         } else {
@@ -36,7 +36,7 @@ function findUser(userSub) {
     })
 }
 
-function checkForDuplicates(movieData, movieId = "0", userSub) {
+function checkForDuplicates(movieData, userSub, movieId = "0") {
     // return Movie.find({ title: movieData.title, director: movieData.director}).then(movie => {
     //     if (movie.length >= 1 && movieId === "0") {
     //         return true;
@@ -45,13 +45,15 @@ function checkForDuplicates(movieData, movieId = "0", userSub) {
     //     }
     //     return false;
     // })
-    // return findUser(userSub).then((user) => {
-    //     if (user.length === 0) {
-    //         return false;
-    //     } else {
-    //         user[0].movieList.forEach((movies))
-    //     }
-    // })
+    return List.find({ owner: userSub, "movieList.title": movieData.title, "movieList.direcotr": movieData.director }).then((movie) => {
+        if (movie.length >= 1 && movieId === "0") {
+            return true;
+        } else if (movie.length >= 1 && movie[0]._id !== movieId) {
+            return true;
+        } else {
+            return false;
+        }
+    })
 }
 
 // router.get('/', checkJwt, (req, res) => {
@@ -70,9 +72,9 @@ router.get('/', checkJwt, (req, res) => {
     // })
     findUser(req.user.sub).then((user) => {
         if (user.length === 0) {
-            res.status(200).json({ movieList: []});
+            res.status(200).json({ movieList: [] });
         } else {
-            res.status(200).json({ movieList: user[0].movieList});
+            res.status(200).json({ movieList: user[0].movieList });
         }
     })
 })
@@ -103,30 +105,51 @@ router.post('/', checkJwt, (req, res) => {
             newPost.save();
             res.status(200).json(newUser);
         } else {
-            // Alter checkForDuplicate function
-            const userId = user[0]._id;
+            const userId = req.user.sub;
             const newMovie = req.body;
-            user[0].movieList.push(newMovie);
-            List.findByIdAndUpdate(userId, user[0]).then(() => {
-                res.status(200).json(newMovie);
+            checkForDuplicates(newMovie, userId).then((value) => {
+                if (!value) {
+                    user[0].movieList.push(newMovie);
+                    List.findOneAndUpdate({ owner: userId }, user[0]).then(() => {
+                        res.status(200).json(user[0]);
+                    })
+                } else {
+                    res.status(400).json({ "Error": "There is already a movie by that name" });
+                }
             })
         }
     })
 })
 
 router.delete('/:mid', checkJwt, (req, res) => {
-    let movieData = req.params.mid;
-    findUser(req.user.sub).then((user) => {
-        const userId = user[0]._id;
-        const newList = user[0].movieList.filter((movies) => {
-            return movies._id !== movieData;
-        });
-        user[0].movieList = newList;
-        console.log(user[0].movieList);
-        List.findByIdAndUpdate(userId, user[0]).then(() => {
-            res.status(201).end();
-        })
+    const listOwner = req.user.sub;
+    findUser(req.user.sub).then((users) => {
+        if (users.length === 0) {
+            res.status(404).end();
+        } else {
+            const user = users[0];
+            const updatedList = user.movieList.filter(movies => movies.id !== req.params.mid);
+            user.movieList = updatedList;
+            List.findOneAndUpdate({ owner: listOwner }, user).then(() => {
+                res.status(201).end();
+            })
+        }
     })
+    // List.findOneAndDelete({ owner: listOwner, "movieList._id": req.params.mid }).then(() => {
+    //     res.status(201).end();
+    // });
+    // let movieData = req.params.mid;
+    // findUser(req.user.sub).then((user) => {
+    //     const userId = user[0]._id;
+    //     const newList = user[0].movieList.filter((movies) => {
+    //         return movies._id !== movieData;
+    //     });
+    //     user[0].movieList = newList;
+    //     console.log(user[0].movieList);
+    //     List.findByIdAndUpdate(userId, user[0]).then(() => {
+    //         res.status(201).end();
+    //     })
+    // })
     // List.findByIdAndDelete(movieData).then(() => {
     //     console.log("DONE");
     //     res.status(204).end();
@@ -135,10 +158,11 @@ router.delete('/:mid', checkJwt, (req, res) => {
 
 router.put('/:mid', checkJwt, (req, res) => {
     let movieId = req.params.mid;
-    let  movieData = req.body;
+    let movieData = req.body;
+    let listOwner = req.user.sub;
     checkForDuplicates(movieData, movieId).then((data) => {
         if (data) {
-            res.status(400).json({ Error: "This movie is already tracked."})
+            res.status(400).json({ Error: "This movie is already tracked." })
         }
         else {
             Movie.findByIdAndUpdate(movieId, movieData).then(() => {
