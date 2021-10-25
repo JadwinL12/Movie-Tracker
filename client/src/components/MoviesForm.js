@@ -1,6 +1,6 @@
 import { React, useState, useEffect } from 'react';
 import { Container, Box, TextField, Grid, MenuItem, Button, Typography } from '@mui/material';
-
+import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
 
 const MoviesForm = (props) => {
@@ -11,6 +11,8 @@ const MoviesForm = (props) => {
     const [review, setReview] = useState("");
     const [errors, setErrors] = useState({title: true, director: true, review: true});
 
+    const { getAccessTokenSilently } = useAuth0();
+    
     useEffect(() => {
         if (props.editStatus) {
             setErrors({
@@ -56,7 +58,7 @@ const MoviesForm = (props) => {
         setReview(event.target.value);
     }
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         const movieData = {
@@ -65,8 +67,9 @@ const MoviesForm = (props) => {
             rating: rating,
             review: review
         }
-
-        axios.post('http://localhost:3001/movies', movieData).then((res) => {
+        try {
+            const accessToken = await getAccessTokenSilently();
+            await axios.post('http://localhost:3001/movies', movieData, { headers: { 'Authorization' : `Bearer ${accessToken}`}});
             setTitle("");
             setDirector("");
             setRating("");
@@ -75,13 +78,25 @@ const MoviesForm = (props) => {
             props.toggleForm();
             props.incrementCount();
             props.getFromServer();
-        }).catch(err => {
-            console.log(err.response);
-        });
+        } catch(e) {
+            console.log(e.message);
+        }
+        // axios.post('http://localhost:3001/movies', movieData).then((res) => {
+        //     setTitle("");
+        //     setDirector("");
+        //     setRating("");
+        //     setReview("1");
+    
+        //     props.toggleForm();
+        //     props.incrementCount();
+        //     props.getFromServer();
+        // }).catch(err => {
+        //     console.log(err.response);
+        // });
 
     }
 
-    const handleEdit = (event) => {
+    const handleEdit = async (event) => {
         event.preventDefault();
 
         const movieData = {
@@ -90,8 +105,9 @@ const MoviesForm = (props) => {
             rating: rating,
             review: review
         }
-
-        axios.put(`http://localhost:3001/movies/${props.movieToEdit._id}`, movieData).then((res) => {
+        try {
+            const accessToken = await getAccessTokenSilently();
+            await axios.put(`http://localhost:3001/movies/${props.movieToEdit._id}`, movieData, { headers: { 'Authorization' : `Bearer ${accessToken}`}});
             setTitle("");
             setDirector("");
             setRating("");
@@ -100,7 +116,19 @@ const MoviesForm = (props) => {
             props.toggleForm();
             props.getFromServer();
             props.toggleEdit();
-        });
+        } catch (e) {
+            console.log(e.message);
+        }
+        // axios.put(`http://localhost:3001/movies/${props.movieToEdit._id}`, movieData, ).then((res) => {
+        //     setTitle("");
+        //     setDirector("");
+        //     setRating("");
+        //     setReview("1");
+    
+        //     props.toggleForm();
+        //     props.getFromServer();
+        //     props.toggleEdit();
+        // });
     }
 
     const ratings = ["1", "2", "3", "4", "5"];
