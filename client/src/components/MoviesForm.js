@@ -1,6 +1,6 @@
 import { React, useState, useEffect } from 'react';
 import { Container, Box, TextField, Grid, MenuItem, Button, Typography } from '@mui/material';
-
+import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
 
 const MoviesForm = (props) => {
@@ -9,7 +9,9 @@ const MoviesForm = (props) => {
     const [director, setDirector] = useState("");
     const [rating, setRating] = useState("1");
     const [review, setReview] = useState("");
-    const [errors, setErrors] = useState({title: true, director: true, review: true});
+    const [errors, setErrors] = useState({ title: true, director: true, review: true });
+
+    const { getAccessTokenSilently } = useAuth0();
 
     useEffect(() => {
         if (props.editStatus) {
@@ -27,18 +29,18 @@ const MoviesForm = (props) => {
 
     const handleTitleChange = (event) => {
         if (event.target.value.trim().length === 0) {
-            setErrors(prevErrors => ({...prevErrors, title: true}))
-        } else if(errors.title === true) {
-            setErrors(prevErrors => ({...prevErrors, title: false}))
+            setErrors(prevErrors => ({ ...prevErrors, title: true }))
+        } else if (errors.title === true) {
+            setErrors(prevErrors => ({ ...prevErrors, title: false }))
         }
         setTitle(event.target.value);
     }
 
     const handleDirectorChange = (event) => {
         if (event.target.value.trim().length === 0) {
-            setErrors(prevErrors => ({...prevErrors, director: true}))
+            setErrors(prevErrors => ({ ...prevErrors, director: true }))
         } else if (errors.director === true) {
-            setErrors(prevErrors => ({...prevErrors, director: false}))
+            setErrors(prevErrors => ({ ...prevErrors, director: false }))
         }
         setDirector(event.target.value);
     }
@@ -49,14 +51,14 @@ const MoviesForm = (props) => {
 
     const handleReviewChange = (event) => {
         if (event.target.value.trim().length === 0) {
-            setErrors(prevErrors => ({...prevErrors, review: true}))
+            setErrors(prevErrors => ({ ...prevErrors, review: true }))
         } else if (errors.review === true) {
-            setErrors(prevErrors => ({...prevErrors, review: false}))
+            setErrors(prevErrors => ({ ...prevErrors, review: false }))
         }
         setReview(event.target.value);
     }
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         const movieData = {
@@ -65,23 +67,23 @@ const MoviesForm = (props) => {
             rating: rating,
             review: review
         }
-
-        axios.post('http://localhost:3001/movies', movieData).then((res) => {
+        try {
+            const accessToken = await getAccessTokenSilently();
+            await axios.post('http://localhost:3001/movies', movieData, { headers: { 'Authorization': `Bearer ${accessToken}` } });
             setTitle("");
             setDirector("");
             setRating("");
             setReview("1");
-    
+
             props.toggleForm();
             props.incrementCount();
             props.getFromServer();
-        }).catch(err => {
-            console.log(err.response);
-        });
-
+        } catch (e) {
+            console.log(e.message);
+        }
     }
 
-    const handleEdit = (event) => {
+    const handleEdit = async (event) => {
         event.preventDefault();
 
         const movieData = {
@@ -90,17 +92,21 @@ const MoviesForm = (props) => {
             rating: rating,
             review: review
         }
-
-        axios.put(`http://localhost:3001/movies/${props.movieToEdit._id}`, movieData).then((res) => {
+        try {
+            const accessToken = await getAccessTokenSilently();
+            console.log(props.movieToEdit._id);
+            await axios.put(`http://localhost:3001/movies/${props.movieToEdit._id}`, movieData, { headers: { 'Authorization': `Bearer ${accessToken}` } });
             setTitle("");
             setDirector("");
             setRating("");
             setReview("1");
-    
+
             props.toggleForm();
             props.getFromServer();
             props.toggleEdit();
-        });
+        } catch (e) {
+            console.log(e.message);
+        }
     }
 
     const ratings = ["1", "2", "3", "4", "5"];
@@ -110,13 +116,13 @@ const MoviesForm = (props) => {
             <Box onSubmit={!props.editStatus ? handleSubmit : handleEdit} component="form" display="flex" justifyContent="left" alignItems="left" sx={{ width: "90%", height: 400, border: "3px solid black", borderRadius: "10px", backgroundColor: "white" }}>
                 <Grid container spacing={4} sx={{ height: "50%", width: "100%" }}>
                     <Grid item xs={12}>
-                        <Typography sx={{marginTop: "20px"}}>All Fields Must Be Filled Out To Submit</Typography>
+                        <Typography sx={{ marginTop: "20px" }}>All Fields Must Be Filled Out To Submit</Typography>
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField id="title" /* error={errors.title} */ value={title} label="Movie Title" variant="standard" sx={{width: "80%" }} onChange={handleTitleChange}></TextField>
+                        <TextField id="title" /* error={errors.title} */ value={title} label="Movie Title" variant="standard" sx={{ width: "80%" }} onChange={handleTitleChange}></TextField>
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField id="director" /* error={errors.director} */ value={director} label="Movie Director" variant="standard" sx={{width: "80%" }} onChange={handleDirectorChange}></TextField>
+                        <TextField id="director" /* error={errors.director} */ value={director} label="Movie Director" variant="standard" sx={{ width: "80%" }} onChange={handleDirectorChange}></TextField>
                     </Grid>
                     <Grid item xs={6}>
                         <TextField id="rating" select label="rating" value={rating} sx={{ marginTop: "10px", width: "50%" }} onChange={handleRatingChange}>

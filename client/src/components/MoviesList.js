@@ -2,6 +2,7 @@ import { React } from 'react';
 import { Accordion, AccordionSummary, AccordionDetails, Typography, Button } from "@mui/material"
 import { styled } from '@mui/system';
 import { ExpandMore } from '@mui/icons-material/';
+import { useAuth0 } from '@auth0/auth0-react';
 
 import axios from 'axios';
 
@@ -13,11 +14,17 @@ const ContainerDiv = styled('div')({
 
 const MoviesList = props => {
 
-    const deleteMovie = (movieId) => {
-        axios.delete(`http://localhost:3001/movies/${movieId}`).then((res) => {
+    const { getAccessTokenSilently } = useAuth0();
+
+    const deleteMovie = async (movieId) => {
+        try {
+            const accessToken = await getAccessTokenSilently();
+            await axios.delete(`http://localhost:3001/movies/${movieId}`, { headers: { 'Authorization' : `Bearer ${accessToken}`}});
             props.decrementCount();
             props.getFromServer();
-        })
+        } catch (e) {
+            console.log(e.message);
+        }
     }
 
     const movieList = props.movies;

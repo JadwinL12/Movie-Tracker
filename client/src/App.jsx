@@ -1,11 +1,15 @@
 import { React, useState, useEffect } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
 
-import { CssBaseline, Button, Container } from '@mui/material';
+import { CssBaseline, Button, Container, Box, CircularProgress } from '@mui/material';
 
 import Movies from './components/Movies';
 import TopBar from './components/TopBar';
 import MoviesForm from './components/MoviesForm';
+// import LoginButton from './components/LoginButton';
+// import LogoutButton from './components/LogoutButton';
+import LoginDisplay from './components/LoginDisplay';
 
 const App = () => {
 
@@ -15,16 +19,19 @@ const App = () => {
     const [edit, setEdit] = useState(false);
     const [movieEdit, setMovieEdit] = useState({});
 
-    const getFromServer = () => {
-        axios.get('http://localhost:3001/movies').then(res => {
-            setMovies(res.data.moviesList);
-            setCount(res.data.moviesList.length);
-        }).catch(err => {
-            console.log(err);
-        })
+    const { user, isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
+
+    const getFromServer = async () => {
+        try {
+            const accessToken = await getAccessTokenSilently();
+            const moviesList = await axios.get('http://localhost:3001/movies', { headers: { 'Authorization': `Bearer ${accessToken}` } });
+            setMovies(moviesList.data.movieList);
+            setCount(moviesList.data.movieList.length);
+        } catch (e) {
+            console.log(e.message);
+        }
     }
 
-    // Implement movieId parameter to display in MovieForm Component
     const toggleEdit = (movie) => {
         console.log("Toggling edit");
         setEdit((prevEdit) => {
@@ -33,7 +40,7 @@ const App = () => {
         setMovieEdit(movie);
         toggleForm();
     }
-    
+
     const toggleForm = () => {
         setOpen(!open);
     }
@@ -51,22 +58,42 @@ const App = () => {
     }
 
     useEffect(() => {
-        getFromServer();
-    }, [])
-    
+        if (isAuthenticated) {
+            getFromServer();
+        }
+    }, [isAuthenticated])
 
-    return (
-        <CssBaseline>
-            <TopBar />
-            <Movies toggleEdit={toggleEdit} editStatus={edit} getFromServer={getFromServer} moviesList={movies} movieCount={count} decrementCount={decrementCount}/>
-            <Container align="center" sx={{ width: 1200, marginBottom: "50px", mx: "auto", maxWidth: "md" }}>
-            {!edit ? <Button variant="contained" onClick={toggleForm}>
-                    {open ? "Cancel" : "Add New Movie"}
-                </Button> : <></>}
-            </Container>
-            {open ? <MoviesForm /* addMovie={addMovie} */ movieToEdit={movieEdit} toggleEdit={toggleEdit} editStatus={edit} getFromServer={getFromServer} toggleForm={toggleForm} incrementCount={incrementCount}/> : <></>}
-        </CssBaseline>
-    )
+    if (isAuthenticated) {
+        return (
+            <CssBaseline>
+                <TopBar />
+                <Movies toggleEdit={toggleEdit} editStatus={edit} getFromServer={getFromServer} moviesList={movies} movieCount={count} decrementCount={decrementCount} />
+                <Container align="center" sx={{ width: 1200, marginBottom: "50px", mx: "auto", maxWidth: "md" }}>
+                    {!edit ? <Button variant="contained" onClick={toggleForm}>
+                        {open ? "Cancel" : "Add New Movie"}
+                    </Button> : <></>}
+                </Container>
+                {open ? <MoviesForm /* addMovie={addMovie} */ movieToEdit={movieEdit} toggleEdit={toggleEdit} editStatus={edit} getFromServer={getFromServer} toggleForm={toggleForm} incrementCount={incrementCount} /> : <></>}
+            </CssBaseline>
+        )
+    } else if (isLoading) {
+        return (<Container align="center" sx={{ width: 1200, height: 400, marginTop: "100px", marginBottom: "50px", mx: "auto", maxWidth: "md" }}>
+            <Box component="div" alignItems="center" sx={{ height: 400, border: "3px solid black", borderRadius: "10px", backgroundColor: "white", display: "flex", justifyContent: "center" }}>
+                <div>
+                    <CircularProgress />
+                </div>
+            </Box>
+        </Container>
+        )
+    }
+    else {
+        return (
+            <CssBaseline>
+                <TopBar />
+                <LoginDisplay></LoginDisplay>
+            </CssBaseline>
+        )
+    }
 }
 
 export default App;
