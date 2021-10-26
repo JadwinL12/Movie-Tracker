@@ -81,19 +81,6 @@ const MoviesForm = (props) => {
         } catch (e) {
             console.log(e.message);
         }
-        // axios.post('http://localhost:3001/movies', movieData).then((res) => {
-        //     setTitle("");
-        //     setDirector("");
-        //     setRating("");
-        //     setReview("1");
-
-        //     props.toggleForm();
-        //     props.incrementCount();
-        //     props.getFromServer();
-        // }).catch(err => {
-        //     console.log(err.response);
-        // });
-
     }
 
     const handleEdit = async (event) => {
@@ -120,16 +107,6 @@ const MoviesForm = (props) => {
         } catch (e) {
             console.log(e.message);
         }
-        // axios.put(`http://localhost:3001/movies/${props.movieToEdit._id}`, movieData, ).then((res) => {
-        //     setTitle("");
-        //     setDirector("");
-        //     setRating("");
-        //     setReview("1");
-
-        //     props.toggleForm();
-        //     props.getFromServer();
-        //     props.toggleEdit();
-        // });
     }
 
     const ratings = ["1", "2", "3", "4", "5"];

@@ -37,39 +37,23 @@ function findUser(userSub) {
 }
 
 function checkForDuplicates(movieData, userSub, movieId = "0") {
-    // return Movie.find({ title: movieData.title, director: movieData.director}).then(movie => {
-    //     if (movie.length >= 1 && movieId === "0") {
-    //         return true;
-    //     } else if (movie.length >= 1 && movie[0].id !== movieId) {
-    //         return true;
-    //     }
-    //     return false;
-    // })
-    return List.find({ owner: userSub, "movieList.title": movieData.title, "movieList.direcotr": movieData.director }).then((movie) => {
-        if (movie.length >= 1 && movieId === "0") {
-            return true;
-        } else if (movie.length >= 1 && movie[0]._id !== movieId) {
-            return true;
+    return findUser(userSub).then((users) => {
+        const user = users[0];
+        if (user.movieList.length === 0) {
+            return false;
         } else {
+            for (let i = 0; i < user.movieList.length; i++) {
+                let movie = user.movieList[i];
+                if (movie.title === movieData.title && movie.director === movieData.director && movie.id !== movieId) {
+                    return true;
+                }
+            }
             return false;
         }
     })
 }
 
-// router.get('/', checkJwt, (req, res) => {
-//     Movie.find({}).then(movies => {
-//         res.status(200).json({ moviesList: movies});
-//     })
-// })
-
 router.get('/', checkJwt, (req, res) => {
-    // List.find({}).then(user => {
-    //     if (user.length === 0 || user.movieList.length === 0) {
-    //         res.status(200).json({ moviesList: []});
-    //     } else {
-    //         res.status(200).json({ moviesList: user.movieList});
-    //     }
-    // })
     findUser(req.user.sub).then((user) => {
         if (user.length === 0) {
             res.status(200).json({ movieList: [] });
@@ -79,23 +63,9 @@ router.get('/', checkJwt, (req, res) => {
     })
 })
 
-// router.post('/', checkJwt, (req, res) => {
-//     let newMovie = req.body;
-//     const newPost = new Movie(newMovie);
-//     checkForDuplicates(newMovie).then((data) => {
-//         if (data) {
-//             res.status(400).json({ Error: "This movie is already tracked."});
-//         } else {
-//             newPost.save();
-//             res.status(201).end();
-//         }
-//     })
-// })
-
 router.post('/', checkJwt, (req, res) => {
     findUser(req.user.sub).then((user) => {
         if (user.length === 0) {
-            console.log("NOTHING HERE");
             const newMovie = req.body;
             const newUser = {
                 owner: req.user.sub,
@@ -135,38 +105,30 @@ router.delete('/:mid', checkJwt, (req, res) => {
             })
         }
     })
-    // List.findOneAndDelete({ owner: listOwner, "movieList._id": req.params.mid }).then(() => {
-    //     res.status(201).end();
-    // });
-    // let movieData = req.params.mid;
-    // findUser(req.user.sub).then((user) => {
-    //     const userId = user[0]._id;
-    //     const newList = user[0].movieList.filter((movies) => {
-    //         return movies._id !== movieData;
-    //     });
-    //     user[0].movieList = newList;
-    //     console.log(user[0].movieList);
-    //     List.findByIdAndUpdate(userId, user[0]).then(() => {
-    //         res.status(201).end();
-    //     })
-    // })
-    // List.findByIdAndDelete(movieData).then(() => {
-    //     console.log("DONE");
-    //     res.status(204).end();
-    // });
 })
 
 router.put('/:mid', checkJwt, (req, res) => {
     let movieId = req.params.mid;
     let movieData = req.body;
     let listOwner = req.user.sub;
-    checkForDuplicates(movieData, movieId).then((data) => {
+    checkForDuplicates(movieData, listOwner, movieId).then((data) => {
         if (data) {
             res.status(400).json({ Error: "This movie is already tracked." })
         }
         else {
-            Movie.findByIdAndUpdate(movieId, movieData).then(() => {
-                res.status(204).end();
+            findUser(listOwner).then((users) => {
+                const user = users[0];
+                user.movieList.forEach((movie) => {
+                    if (movie.id === movieId) {
+                        movie.title = movieData.title;
+                        movie.director = movieData.director;
+                        movie.rating = movieData.rating;
+                        movie.review = movieData.review;
+                    }
+                })
+                List.findOneAndUpdate({ owner: listOwner }, user).then(() => {
+                    res.status(201).end();
+                })
             })
         }
     })

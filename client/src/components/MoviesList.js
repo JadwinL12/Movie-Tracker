@@ -25,10 +25,6 @@ const MoviesList = props => {
         } catch (e) {
             console.log(e.message);
         }
-        // axios.delete(`http://localhost:3001/movies/${movieId}`).then((res) => {
-        //     props.decrementCount();
-        //     props.getFromServer();
-        // })
     }
 
     const movieList = props.movies;
